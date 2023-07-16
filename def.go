@@ -84,6 +84,10 @@ func (a Article) save() {
 	}
 	err := ioutil.WriteFile(filePath, []byte(a.content), 0644)
 	CheckError(err)
+
+	// Use article creation and modify time
+	err = os.Chtimes(filePath, a.creationTime, a.updatedTime)
+	CheckError(err)
 }
 
 type Resource struct {
