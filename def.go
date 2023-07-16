@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"strings"
+  "time"
 )
 
 var SrcPath *string
@@ -24,8 +25,13 @@ type FileInfo struct {
 	metaIndex    int
 	metaId       string
 	metaParentId string
-	metaType     int //1:Article 2:Folder 4:Resource 5:Tag
+	metaType     int //1:Article 2:Folder 4:Resource 5:Tag 6:Article-Tag mapping
 	metaFileExt  string
+	creationTime time.Time
+	updatedTime  time.Time
+	sourceURL    string
+	tagId        string
+	tagNoteId    string
 }
 
 func (fi FileInfo) getValidName() string {
@@ -61,8 +67,9 @@ func (f Folder) getRelativePath() string {
 
 type Article struct {
 	*FileInfo
-	folder  *Folder
-	content string
+	folder    *Folder
+	content   string
+	sourceURL string
 }
 
 func (a Article) getPath() string {
