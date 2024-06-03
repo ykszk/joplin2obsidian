@@ -292,6 +292,33 @@ func FixResourceRef(article *Article, resMap *map[string]*Resource, articleMap *
 	article.content = content
 }
 
+func _FixResourceRef_html(article *Article, resMap *map[string]*Resource, articleMap *map[string]*Article) {
+	content := article.content
+	r, _ := regexp.Compile(`src=":/([0-9a-f]{32})"`)
+	matchAll := r.FindAllStringSubmatchIndex(content, -1)
+	for i := len(matchAll) - 1; i >= 0; i-- {
+		match := matchAll[i]
+		resId := content[match[2]:match[3]]
+
+		var resFileName string
+		if res, prs := (*resMap)[resId]; prs {
+			resFileName = res.getFileName()
+		} else if res, prs := (*articleMap)[resId]; prs {
+			resFileName = path.Join(res.folder.getRelativePath(), res.getValidName())
+		} else {
+			resFileName = path.Join("resources", resId) // help to find lost resource
+		}
+		content = fmt.Sprintf(`%ssrc="%s/%s"%s`, content[:match[0]], DstResourcesFolder, resFileName, content[match[1]:])
+	}
+	article.content = content
+}
+
+
+func FixResourceRef(article *Article, resMap *map[string]*Resource, articleMap *map[string]*Article) {
+	_FixResourceRef_md(article, resMap, articleMap)
+	_FixResourceRef_html(article, resMap, articleMap)
+}
+
 func AddMetadataToArticles(articleMap *map[string]*Article, articleTagsMap *map[string][]string, progress chan<- int) {
 	for noteId, article := range *articleMap {
 		var (
