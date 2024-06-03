@@ -1,3 +1,4 @@
 .idea/
 joplin2obsidian*
+*.7z
 misc_test.go
