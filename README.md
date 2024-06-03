@@ -15,6 +15,12 @@ Usage of joplin2obsidian:
         Specify the source directory where Joplin exported the RAW data
   -d string
         The destination directory of Obsidian vault
+  -t
+        Add tag metadata
+  -u
+        Add source URL metadata
+  -r string
+        Change resource directory in the destination
 ~~~
 
 3. Open the destination directory as vault in Obsidian
