@@ -12,6 +12,9 @@ var Version string
 func main() {
 	SrcPath = flag.String("s", "","Specify the directory where Joplin exported the RAW data" )
 	DestPath = flag.String("d", "", "The directory of Obsidian vault")
+	DstResourcesFolder = flag.String("r", "resources", "Resource folder in the destination")
+	AddTag = flag.Bool("t", false, "Add tag metadata")
+	AddSourceUrl = flag.Bool("u", false, "Add source URL metadata")
 	flag.Parse()
 
 	fmt.Printf("joplin2obsidian %s\n\n", Version)

@@ -255,7 +255,7 @@ func HandlingCoreBusiness(progress chan<- int, done chan<- bool) {
 	RebuildFoldersRelationship(&folderMap, progress)
 	RebuildArticlesRelationship(&articleMap, &folderMap, progress)
 
-	err = copy2.Copy(path.Join(*SrcPath, ResourcesFolder), path.Join(*DestPath, ResourcesFolder))
+	err = copy2.Copy(path.Join(*SrcPath, SrcResourcesFolder), path.Join(*DestPath, *DstResourcesFolder))
 	CheckError(err)
 
 	for _, article := range articleMap {
@@ -268,7 +268,7 @@ func HandlingCoreBusiness(progress chan<- int, done chan<- bool) {
 	done <- true
 }
 
-func FixResourceRef(article *Article, resMap *map[string]*Resource, articleMap *map[string]*Article) {
+func _FixResourceRef_md(article *Article, resMap *map[string]*Resource, articleMap *map[string]*Article) {
 	content := article.content
 	r, _ := regexp.Compile(`(!?)\[(.*?)]\(:/(.*?)\)`)
 	matchAll := r.FindAllStringSubmatchIndex(content, -1)
@@ -326,12 +326,16 @@ func AddMetadataToArticles(articleMap *map[string]*Article, articleTagsMap *map[
 			tagsSection      string
 			sourceUrlSection string
 		)
-		if tags, ok := (*articleTagsMap)[noteId]; ok {
-			tagsSection = fmt.Sprintf("tags: %s\n", strings.Join(tags, ", "))
+		if *AddTag {
+			if tags, ok := (*articleTagsMap)[noteId]; ok {
+				tagsSection = fmt.Sprintf("tags: %s\n", strings.Join(tags, ", "))
+			}
 		}
 
-		if article.sourceURL != "" {
-			sourceUrlSection = fmt.Sprintf("source_url: %s\n", article.sourceURL)
+		if *AddSourceUrl {
+			if article.sourceURL != "" {
+				sourceUrlSection = fmt.Sprintf("source_url: %s\n", article.sourceURL)
+			}
 		}
 
 		if tagsSection != "" || sourceUrlSection != "" {

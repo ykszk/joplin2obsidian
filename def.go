@@ -11,8 +11,11 @@ import (
 
 var SrcPath *string
 var DestPath *string
+var AddTag *bool
+var AddSourceUrl *bool
 
-const ResourcesFolder string = "resources"
+const SrcResourcesFolder string = "resources"
+var DstResourcesFolder *string
 
 func CheckError(e error) {
 	if e != nil {
