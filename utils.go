@@ -8,8 +8,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	copy2 "github.com/otiai10/copy"
 )
 
 func GetTags() (map[string]string, error) {
@@ -90,7 +88,7 @@ func GetFileInfo(filePath string) (*FileInfo, *string) {
 	strData := strings.TrimSpace(string(data))
 	metaIndex := strings.LastIndex(strData, "\n\n")
 	if metaIndex <= 0 {
-    // files with type: _6 tag-note relationship have no content and start with metadata
+		// files with type: _6 tag-note relationship have no content and start with metadata
 		r, _ := regexp.Compile("id: *(.*)\n")
 		match := r.FindStringSubmatch(strData)
 		if len(match) < 2 {
@@ -255,8 +253,12 @@ func HandlingCoreBusiness(progress chan<- int, done chan<- bool) {
 	RebuildFoldersRelationship(&folderMap, progress)
 	RebuildArticlesRelationship(&articleMap, &folderMap, progress)
 
-	err = copy2.Copy(path.Join(*SrcPath, SrcResourcesFolder), path.Join(*DestPath, *DstResourcesFolder))
-	CheckError(err)
+	// err = copy2.Copy(path.Join(*SrcPath, SrcResourcesFolder), path.Join(*DestPath, *DstResourcesFolder))
+	// CheckError(err)
+
+	for _, res := range resMap {
+		res.save()
+	}
 
 	for _, article := range articleMap {
 		FixResourceRef(article, &resMap, &articleMap)
@@ -279,7 +281,7 @@ func _FixResourceRef_md(article *Article, resMap *map[string]*Resource, articleM
 
 		var resFileName string
 		if res, prs := (*resMap)[resId]; prs {
-			resFileName = res.getFileName()
+			resFileName = res.getValidName()
 		} else if res, prs := (*articleMap)[resId]; prs {
 			resFileName = path.Join(res.folder.getRelativePath(), res.getValidName())
 		} else if res, prs := (*articleMap)[resId_wo_heading]; prs {
@@ -302,17 +304,17 @@ func _FixResourceRef_html(article *Article, resMap *map[string]*Resource, articl
 
 		var resFileName string
 		if res, prs := (*resMap)[resId]; prs {
-			resFileName = res.getFileName()
+			resFileName = res.getValidName()
+			fmt.Println(resFileName)
 		} else if res, prs := (*articleMap)[resId]; prs {
 			resFileName = path.Join(res.folder.getRelativePath(), res.getValidName())
 		} else {
 			resFileName = path.Join("resources", resId) // help to find lost resource
 		}
-		content = fmt.Sprintf(`%ssrc="%s/%s"%s`, content[:match[0]], DstResourcesFolder, resFileName, content[match[1]:])
+		content = fmt.Sprintf(`%ssrc="%s/%s"%s`, content[:match[0]], *DstResourcesFolder, resFileName, content[match[1]:])
 	}
 	article.content = content
 }
-
 
 func FixResourceRef(article *Article, resMap *map[string]*Resource, articleMap *map[string]*Article) {
 	_FixResourceRef_md(article, resMap, articleMap)

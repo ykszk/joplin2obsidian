@@ -6,7 +6,9 @@ import (
 	"os"
 	"path"
 	"strings"
-  "time"
+	"time"
+
+	copy2 "github.com/otiai10/copy"
 )
 
 var SrcPath *string
@@ -15,6 +17,7 @@ var AddTag *bool
 var AddSourceUrl *bool
 
 const SrcResourcesFolder string = "resources"
+
 var DstResourcesFolder *string
 
 func CheckError(e error) {
@@ -116,4 +119,13 @@ func (r Resource) getFileName() string {
 		}
 	}
 	return fileName
+}
+
+func (r Resource) save() {
+	// handle whitespaces in the file name
+	filePath := r.getValidName()
+	dstName := path.Join(*DestPath, *DstResourcesFolder, filePath)
+	srcName := path.Join(*SrcPath, SrcResourcesFolder, r.getFileName())
+	err := copy2.Copy(srcName, dstName)
+	CheckError(err)
 }
